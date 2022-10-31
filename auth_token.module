@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ *
+ * Sets the auth token on newly created users.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_help().
+ */
+function auth_token_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.auth_token':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides token authentication and login functionality.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Set authentication token when a new user is created.
+ */
+function auth_token_user_insert(EntityInterface $entity) {
+  \Drupal::service('auth_token.generate_token')->setAuthToken([$entity->id()]);
+}

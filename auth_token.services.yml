@@ -1,0 +1,9 @@
+services:
+  auth_token.generate_token:
+    class: Drupal\auth_token\Services\AuthTokenService
+    arguments: ['@entity_type.manager']
+  auth_token_event_subscriber:
+    class: '\Drupal\auth_token\EventSubscriber\AuthTokenEventSubscriber'
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: 'event_subscriber' }

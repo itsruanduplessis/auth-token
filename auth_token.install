@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall functions for the Auth Token module.
+ */
+
+use Drupal\user\Entity\User;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\Batch\BatchBuilder;
+use Drupal\auth_token\Batch\UserAuthTokenBatch;
+
+/**
+ * Implements hook_install().
+ *
+ * @see system_install()
+ */
+function auth_token_install() {
+  $ids = \Drupal::entityQuery('user')
+    ->condition('status', 1)
+    ->execute();
+
+  // Use batch processing to prevent OOM errors.
+  $batch_builder = (new BatchBuilder())
+    ->setTitle('Auth token batch')
+    ->setFinishCallback([UserAuthTokenBatch::class, 'completeBatch']);
+
+  // Split batches up into chunks of 20.
+  foreach (array_chunk($ids, 20) as $chunk) {
+    $batch_builder->addOperation([UserAuthTokenBatch::class, 'authUsers'], [$chunk]);
+  }
+  batch_set($batch_builder->toArray());
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function auth_token_uninstall() {
+  FieldStorageConfig::loadByName('user', 'field_auth_token')->delete();
+}

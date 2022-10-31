@@ -1,0 +1,5 @@
+name: Auth token
+description: 'Provides token authentication and login functionality.'
+type: module
+package: 'Custom'
+core_version_requirement: ^9.3
